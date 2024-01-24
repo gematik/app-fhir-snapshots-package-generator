@@ -1,0 +1,12 @@
+.classpath
+.project
+target/
+**/*.log
+.idea/
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.iml
+**/*.versionsBackup
+.jenkins/
+.githubignore
+.gitlab-ci.yml
