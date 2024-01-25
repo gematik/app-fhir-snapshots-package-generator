@@ -2,6 +2,11 @@
 
 # Release Notes FHIR Snapshots Package Generator
 
+## Release 0.3.0 (2024-01-25)
+
+### changed
+- Removed excludedPackages argument from CLI and the corresponding parameter from Java lib
+
 ## Release 0.2.1 (2024-01-24)
 
 ### added

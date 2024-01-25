@@ -8,7 +8,7 @@
   <groupId>de.gematik.fhir</groupId>
   <artifactId>fhir-snapshots-package-generator</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.0</version>
+  <version>0.3.1-SNAPSHOT</version>
   <name>FHIR Snapshots Package Generator</name>
   <description>The FHIR Snapshots Package Generator generates snapshots for StructureDefinitions in FHIR-packages</description>
   <url>https://github.com/gematik/app-fhir-snapshots-package-generator</url>
