@@ -37,10 +37,9 @@ class SnapshotGeneratorCliIT {
     void testSnapshotMain() {
         String srcPackagesDir = "src/test/resources/src-package/";
         String outputSnapshotPackagesDir = "target/generated-snapshots/";
-        String excludedPackages = "excluded.package-1.0.0.tgz";
         FileUtils.deleteDirectory(new File(outputSnapshotPackagesDir));
 
-        SnapshotGeneratorCli.main(new String[] {srcPackagesDir, outputSnapshotPackagesDir, "", excludedPackages});
+        SnapshotGeneratorCli.main(new String[] {srcPackagesDir, outputSnapshotPackagesDir});
 
         File generatedSnapshotPackage = new File(outputSnapshotPackagesDir + "minimal.example-1.0.0.tgz");
         assertTrue(generatedSnapshotPackage.exists());

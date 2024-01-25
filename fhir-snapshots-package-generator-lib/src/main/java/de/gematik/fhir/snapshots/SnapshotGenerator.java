@@ -62,7 +62,6 @@ public class SnapshotGenerator {
     private FixedSnapshotGeneratingValidationSupport snapshotGeneratingValidationSupport;
     private ValidationSupportChain chain;
     private String currentPackageName = "";
-    private List<String> excludedPackages;
     private static final String PACKAGE_FOLDER_PREFIX = "package/";
 
     /**
@@ -71,11 +70,9 @@ public class SnapshotGenerator {
      * @param packageFolderPath The path to the folder containing source FHIR packages.
      * @param outputFolder      The output folder where FHIR packages with the generated snapshots will be stored.
      * @param workingDirectory  The temporary directory for decompressing the FHIR packages.
-     * @param excludedPackages  List of package names that are only needed for the snapshot generation of other packages but should be excluded from snapshot generation, meaning no snapshots get generated for the packages defined in this list.
      * @throws IOException If an I/O error occurs during the snapshot generation process.
      */
-    public void generateSnapshots(String packageFolderPath, String outputFolder, String workingDirectory, List<String> excludedPackages) throws IOException {
-        this.excludedPackages = excludedPackages;
+    public void generateSnapshots(String packageFolderPath, String outputFolder, String workingDirectory) throws IOException {
         if(workingDirectory.isEmpty()) {
             workingDirectory = System.getProperty("java.io.tmpdir") + File.separator;
         }
@@ -153,41 +150,34 @@ public class SnapshotGenerator {
     }
 
     private void compressPackage(String outputDir, String decompressDir) throws IOException {
-        if(excludedPackages.contains(currentPackageName + ".tgz")) {
-            log.info("The current package '{}' was set to be excluded from the final snapshot packages used for validation.", currentPackageName + ".tgz");
-            return;
-        }
-
         Path source = Paths.get(decompressDir + currentPackageName);
         Files.createDirectories(Paths.get(outputDir));
         TARGZ.compress(source, outputDir);
     }
 
     private void readStructureDefinitionsFromTgz(String sourceDir, String filename, String decompressDir) throws IOException {
-        if (!excludedPackages.contains(filename)) {
-            try (
-                    FileInputStream fileInputStream = new FileInputStream(sourceDir + filename);
-                    GzipCompressorInputStream gzipInputStream = new GzipCompressorInputStream(fileInputStream);
-                    TarArchiveInputStream tarInputStream = new TarArchiveInputStream(gzipInputStream);
-                    InputStreamReader inputStreamReader = new InputStreamReader(tarInputStream, StandardCharsets.UTF_8);
-                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader)
-            ) {
+        try (
+                FileInputStream fileInputStream = new FileInputStream(sourceDir + filename);
+                GzipCompressorInputStream gzipInputStream = new GzipCompressorInputStream(fileInputStream);
+                TarArchiveInputStream tarInputStream = new TarArchiveInputStream(gzipInputStream);
+                InputStreamReader inputStreamReader = new InputStreamReader(tarInputStream, StandardCharsets.UTF_8);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader)
+        ) {
 
-                TarArchiveEntry currentEntry = tarInputStream.getNextEntry();
-                while (currentEntry != null) {
+            TarArchiveEntry currentEntry = tarInputStream.getNextEntry();
+            while (currentEntry != null) {
 
-                    String currentEntryName = currentEntry.getName();
-                    log.debug("Processing " + currentEntryName);
+                String currentEntryName = currentEntry.getName();
+                log.debug("Processing " + currentEntryName);
 
-                    // Only work with files on the top level of the "package" folder and only handle .json files
-                    try {
-                        createSnapshotIfStructureDefinitionAndWrite(decompressDir, currentEntryName, bufferedReader);
+                // Only work with files on the top level of the "package" folder and only handle .json files
+                try {
+                    createSnapshotIfStructureDefinitionAndWrite(decompressDir, currentEntryName, bufferedReader);
 
-                        currentEntry = tarInputStream.getNextEntry();
-                    } catch (Exception e) {
-                        log.error("Could not create a snapshot for " + currentEntryName + " (" + filename + ")", e);
-                        throw e;
-                    }
+                    currentEntry = tarInputStream.getNextEntry();
+                } catch (Exception e) {
+                    log.error("Could not create a snapshot for " + currentEntryName + " (" + filename + ")", e);
+                    throw e;
                 }
             }
         }

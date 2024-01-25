@@ -19,10 +19,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class SnapshotGeneratorCli {
@@ -39,13 +35,7 @@ public class SnapshotGeneratorCli {
         if(args.length > 2)
             decompressDir = args[2];
 
-        List<String> excludedPackages = new ArrayList<>();
-        if(args.length > 3) {
-            excludedPackages = Arrays.stream(args).skip(3).collect(Collectors.toList());
-        }
-
-
         SnapshotGenerator snapshotGenerator = new SnapshotGenerator();
-        snapshotGenerator.generateSnapshots(packageFolderPath, outputFolderPath, decompressDir, excludedPackages);
+        snapshotGenerator.generateSnapshots(packageFolderPath, outputFolderPath, decompressDir);
     }
 }
