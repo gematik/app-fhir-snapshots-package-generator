@@ -6,7 +6,7 @@
     <parent>
         <groupId>de.gematik.fhir</groupId>
         <artifactId>fhir-snapshots-package-generator</artifactId>
-        <version>0.2.1</version>
+        <version>0.3.0</version>
     </parent>
 
     <artifactId>fhir-snapshots-package-generator-lib</artifactId>

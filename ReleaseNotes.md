@@ -1,8 +1,9 @@
-![gematik GmbH](docs/img/Gematik_Logo_Flag.png)
+<img align="right" width="250" height="47" src="docs/img/Gematik_Logo_Flag.png"/> <br/> 
 
-# Release Notes
+# Release Notes FHIR Snapshots Package Generator
 
-## 0.2.1
+## Release 0.2.1 (2024-01-24)
 
+### added
 - Transfer of the project from https://github.com/gematik/app-referencevalidator
 - Separation of CLI and Java lib
