@@ -29,9 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SnapshotGeneratorTests {
 
@@ -62,7 +61,7 @@ class SnapshotGeneratorTests {
         File correctSnapshotPackage = new File(CORRECT_PACKAGE);
         snapshotGenerator.generateSnapshots(SRC_PACKAGES_DIR, OUTPUT_SNAPSHOT_PACKAGES_DIR, getDecompressDir());
         File generatedSnapshotPackage = new File(OUTPUT_SNAPSHOT_PACKAGES_DIR + "minimal.example-1.0.0.tgz");
-        assertTrue(comparePackages(correctSnapshotPackage, generatedSnapshotPackage));
+        assertThat(comparePackages(correctSnapshotPackage, generatedSnapshotPackage)).isTrue();
     }
 
     @Test
@@ -71,7 +70,18 @@ class SnapshotGeneratorTests {
         var snapshotGenerator = new SnapshotGenerator();
         snapshotGenerator.generateSnapshots("src/test/resources/src-package-upper-case/", OUTPUT_SNAPSHOT_PACKAGES_DIR, getDecompressDir());
         File generatedSnapshotPackage = new File(OUTPUT_SNAPSHOT_PACKAGES_DIR + "dependencies-in-upper-case-1.0.0.tgz");
-        assertTrue(generatedSnapshotPackage.exists(), "No snapshots generated for package with upper-case dependencies");
+        assertThat(generatedSnapshotPackage).exists();
+    }
+
+    @Test
+    @SneakyThrows
+    void testWildcardDependencyWithNoMatchingPackageThrowsException() {
+        var snapshotGenerator = new SnapshotGenerator();
+        String decompressDir = getDecompressDir();
+
+        assertThatThrownBy(() -> snapshotGenerator.generateSnapshots("src/test/resources/src-package-wildcard-error/", OUTPUT_SNAPSHOT_PACKAGES_DIR, decompressDir))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Wildcard version '1.1.x' has been found for package name 'wildcard.package'. But no matching packages were found in 'src/test/resources/src-package-wildcard-error/'");
     }
 
     @Test
@@ -85,7 +95,7 @@ class SnapshotGeneratorTests {
                 throw new IOException(String.format("Could not create test file %s", file.getPath()));
         }
         snapshotGenerator.generateSnapshots(SRC_PACKAGES_DIR, OUTPUT_SNAPSHOT_PACKAGES_DIR, getDecompressDir());
-        assertFalse(file.exists());
+        assertThat(file).doesNotExist();
     }
 
     private boolean comparePackages(File correctSnapshotPackage, File generatedSnapshotPackage) throws IOException {

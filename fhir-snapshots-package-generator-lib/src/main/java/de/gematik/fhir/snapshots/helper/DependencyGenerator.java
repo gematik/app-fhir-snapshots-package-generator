@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -70,11 +71,25 @@ public class DependencyGenerator {
     private void getDependenciesFromPackageJson(String packageFolderPath, List<String> dependencyList, String filename) throws IOException {
         List<PackageReference> additionalRefs = getDependenciesFor(packageFolderPath + File.separator + filename);
         for (PackageReference pr : additionalRefs) {
-            String packageFileName = String.format("%s-%s.tgz", pr.getPackageName(), pr.getPackageVersion()).toLowerCase();
-            if (!dependencyList.contains(packageFileName)) {
-                dependencyList.add(packageFileName);
+            String packageFilename = getPackageFilename(pr, packageFolderPath);
+            if (!dependencyList.contains(packageFilename)) {
+                dependencyList.add(packageFilename);
             }
         }
+    }
+
+    private String getPackageFilename(PackageReference pr, String packageFolderPath) {
+        String packageFilename;
+        if(pr.getPackageVersion().toLowerCase().endsWith("x")) {
+            packageFilename = pr.getWildcardPackageFilename(packageFolderPath);
+            if(StringUtils.isEmpty(packageFilename)) {
+                throw new IllegalArgumentException(String.format("Wildcard version '%s' has been found for package name '%s'. But no matching packages were found in '%s'", pr.getPackageVersion(), pr.getPackageName(), packageFolderPath));
+            }
+        } else {
+            packageFilename = String.format("%s-%s.tgz", pr.getPackageName(), pr.getPackageVersion()).toLowerCase();
+        }
+
+        return packageFilename;
     }
 
     private List<PackageReference> getDependenciesFor(String tgzFilePath) throws IOException {
