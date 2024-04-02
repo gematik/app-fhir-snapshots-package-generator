@@ -15,11 +15,39 @@ limitations under the License.
 */
 package de.gematik.fhir.snapshots;
 
+import de.gematik.fhir.snapshots.helper.PackageVersion;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.io.File;
+
 @Data
 @AllArgsConstructor
 public class PackageReference {
     private String packageName;
     private String packageVersion;
+
+    public String getWildcardPackageFilename(String packageFolderPath) {
+
+        File folder = new File(packageFolderPath);
+        File[] files = folder.listFiles((dir, name) -> name.matches(packageName + "-\\d+\\.\\d+\\.\\d+\\.tgz"));
+
+        String highestVersionFilename = "";
+        PackageVersion highestVersion = null;
+
+        if(files != null) {
+            for (File file : files) {
+                String filename = file.getName();
+                String versionString = filename.substring(packageName.length() + 1, filename.length() - 4);
+                PackageVersion version = new PackageVersion(versionString);
+
+                if (version.matchesWildcard(packageVersion) && (highestVersion == null || version.compareTo(highestVersion) > 0)) {
+                    highestVersion = version;
+                    highestVersionFilename = filename;
+                }
+            }
+        }
+
+        return highestVersionFilename;
+    }
 }

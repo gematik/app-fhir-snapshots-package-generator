@@ -2,6 +2,11 @@
 
 # Release Notes FHIR Snapshots Package Generator
 
+## Release 0.4.0 (2024-04-02)
+
+### added
+- Support for [wildcards in package versions](https://confluence.hl7.org/display/FHIR/NPM+Package+Specification#NPMPackageSpecification-Versionreferences)
+
 ## Release 0.3.0 (2024-01-25)
 
 ### changed

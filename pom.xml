@@ -8,7 +8,7 @@
   <groupId>de.gematik.fhir</groupId>
   <artifactId>fhir-snapshots-package-generator</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.4.0</version>
   <name>FHIR Snapshots Package Generator</name>
   <description>The FHIR Snapshots Package Generator generates snapshots for StructureDefinitions in FHIR-packages</description>
   <url>https://github.com/gematik/app-fhir-snapshots-package-generator</url>
@@ -394,7 +394,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.25.0</version>
+        <version>1.26.1</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
@@ -410,6 +410,17 @@
       <!--
      The following transitive dependencies do not converge (see maven-enforcer-plugin) and are therefore fixed
      -->
+
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.15.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.14.0</version>
+      </dependency>
       <dependency>
         <groupId>org.checkerframework</groupId>
         <artifactId>checker-qual</artifactId>
@@ -418,7 +429,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.16.0</version>
+        <version>1.16.1</version>
       </dependency>
       <dependency>
         <groupId>com.google.errorprone</groupId>
