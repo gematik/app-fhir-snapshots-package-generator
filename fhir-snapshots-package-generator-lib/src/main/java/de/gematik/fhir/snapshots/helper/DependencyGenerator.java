@@ -107,13 +107,15 @@ public class DependencyGenerator {
                     JsonNode jsonNode = objectMapper.readTree(jsonContent);
                     JsonNode dependenciesNode = jsonNode.get("dependencies");
 
-                    dependenciesNode.fields().forEachRemaining(dependencyEntry -> {
-                        String packageName = dependencyEntry.getKey();
-                        String version = dependencyEntry.getValue().asText();
-                        if (!"hl7.fhir.r4.core".equals(packageName)) {
-                            dependencies.add(new PackageReference(packageName, version));
-                        }
-                    });
+                    if (dependenciesNode != null) {
+                        dependenciesNode.fields().forEachRemaining(dependencyEntry -> {
+                            String packageName = dependencyEntry.getKey();
+                            String version = dependencyEntry.getValue().asText();
+                            if (!"hl7.fhir.r4.core".equals(packageName)) {
+                                dependencies.add(new PackageReference(packageName, version));
+                            }
+                        });
+                    }
                     break;
                 }
             }
