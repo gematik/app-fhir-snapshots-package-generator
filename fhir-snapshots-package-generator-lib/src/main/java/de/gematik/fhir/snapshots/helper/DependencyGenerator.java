@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 gematik GmbH
+Copyright (c) 2023-2024 gematik GmbH
 
 Licensed under the Apache License, Version 2.0 (the License);
 you may not use this file except in compliance with the License.
@@ -108,13 +108,16 @@ public class DependencyGenerator {
                     JsonNode dependenciesNode = jsonNode.get("dependencies");
 
                     if (dependenciesNode != null) {
-                        dependenciesNode.fields().forEachRemaining(dependencyEntry -> {
-                            String packageName = dependencyEntry.getKey();
-                            String version = dependencyEntry.getValue().asText();
-                            if (!"hl7.fhir.r4.core".equals(packageName)) {
-                                dependencies.add(new PackageReference(packageName, version));
-                            }
-                        });
+                        dependenciesNode
+                            .fields()
+                            .forEachRemaining(
+                                dependencyEntry -> {
+                                  String packageName = dependencyEntry.getKey();
+                                  String version = dependencyEntry.getValue().asText();
+                                  if (!"hl7.fhir.r4.core".equals(packageName)) {
+                                    dependencies.add(new PackageReference(packageName, version));
+                                  }
+                                });
                     }
                     break;
                 }

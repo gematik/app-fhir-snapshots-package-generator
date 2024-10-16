@@ -2,6 +2,17 @@
 
 # Release Notes FHIR Snapshots Package Generator
 
+## Release 0.5.0 (2024-10)
+
+### added
+- Bumped HAPI to 7.4.3 and other dependencies to the latest versions.
+
+### changed
+- snapshot generator doesn't throw DefinitionException if snapshot generation routine produced messages with severity ERROR. Instead, it logs the messages and continues the snapshot generation (some of the messages can be ignored - the decision should be made by user or by calling application).
+
+### fixed
+- snapshot generator threw an exception for packages, which do not have any dependencies. The behavior has been fixed (cf. [GitHub Issue #5](https://github.com/gematik/app-fhir-snapshots-package-generator/pull/5)) 
+
 ## Release 0.4.0 (2024-04-02)
 
 ### added

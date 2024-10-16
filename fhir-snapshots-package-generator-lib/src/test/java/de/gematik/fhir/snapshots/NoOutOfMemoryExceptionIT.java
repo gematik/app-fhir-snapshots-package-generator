@@ -13,20 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package de.gematik.fhir.snapshots.helper;
+package de.gematik.fhir.snapshots;
 
-import de.gematik.fhir.snapshots.PackageReference;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class NoOutOfMemoryExceptionIT {
 
-class PackageReferenceTests {
+    private static final String OUTPUT_SNAPSHOT_PACKAGES_DIR = "target/generated-snapshots/";
+    private static final String DECOMPRESS_DIR = "target/generated-snapshots/";
+
+    private static final SnapshotGenerator snapshotGenerator = new SnapshotGenerator();
+
     @Test
-    void testGetWildcardPackageFilename() {
-        PackageReference wildcardPackageReference = new PackageReference("wildcard.example", "1.1.x");
-        String expectedFilename = "wildcard.example-1.1.2.tgz";
-        String actualFilename = wildcardPackageReference.getWildcardPackageFilename("src/test/resources/src-package-wildcard");
-
-        assertThat(actualFilename).isEqualTo(expectedFilename);
+    void testCircularDependenciesDoNotProduceOutOfMemoryException() {
+        Assertions.assertDoesNotThrow(() -> snapshotGenerator.generateSnapshots("src/test/resources/circular-dependencies/", OUTPUT_SNAPSHOT_PACKAGES_DIR, DECOMPRESS_DIR));
     }
+
 }

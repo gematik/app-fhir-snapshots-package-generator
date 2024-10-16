@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 gematik GmbH
+Copyright (c) 2023-2024 gematik GmbH
 
 Licensed under the Apache License, Version 2.0 (the License);
 you may not use this file except in compliance with the License.
@@ -28,48 +28,55 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-//solution for checking if directories are equal taken from: http://www.java2s.com/example/java/java.nio.file/compare-the-contents-of-two-directories-to-determine-if-they-are-equal.html
+//solution for checking if directories are equal taken and adjusted from: http://www.java2s.com/example/java/java.nio.file/compare-the-contents-of-two-directories-to-determine-if-they-are-equal.html
 public class DirectoryComparator {
 
     public static boolean directoryContentEquals(Path dir1, Path dir2) throws IOException {
         boolean dir1Exists = Files.exists(dir1) && Files.isDirectory(dir1);
+
+        if(!dir1Exists)
+            throw new IllegalArgumentException("Directory " + dir1 + " does not exist or is not a directory");
+
+
         boolean dir2Exists = Files.exists(dir2) && Files.isDirectory(dir2);
 
-        if (dir1Exists && dir2Exists) {
-            HashMap<Path, Path> dir1Paths = new HashMap<>();
-            HashMap<Path, Path> dir2Paths = new HashMap<>();
+        if(!dir2Exists)
+            throw new IllegalArgumentException("Directory " + dir2 + " does not exist or is not a directory");
 
-            // Map the path relative to the base directory to the complete path.
-            for (Path p : listPaths(dir1)) {
-                dir1Paths.put(dir1.relativize(p), p);
-            }
+        HashMap<Path, Path> dir1Paths = new HashMap<>();
+        HashMap<Path, Path> dir2Paths = new HashMap<>();
 
-            for (Path p : listPaths(dir2)) {
-                dir2Paths.put(dir2.relativize(p), p);
-            }
-
-            // The directories cannot be equal if the number of files aren't equal.
-            if (dir1Paths.size() != dir2Paths.size()) {
-                return false;
-            }
-
-            // For each file in dir1, check if also dir2 contains this file and if
-            // their contents are equal.
-            for (Map.Entry<Path, Path> pathEntry : dir1Paths.entrySet()) {
-                Path relativePath = pathEntry.getKey();
-                Path absolutePath = pathEntry.getValue();
-                if (!dir2Paths.containsKey(relativePath)) {
-                    return false;
-                } else {
-                    if (!contentEquals(absolutePath, dir2Paths.get(relativePath))) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+        // Map the path relative to the base directory to the complete path.
+        for (Path p : listPaths(dir1)) {
+            dir1Paths.put(dir1.relativize(p), p);
         }
 
-        return false;
+        for (Path p : listPaths(dir2)) {
+            dir2Paths.put(dir2.relativize(p), p);
+        }
+
+        // The directories cannot be equal if the number of files aren't equal.
+        if (dir1Paths.size() != dir2Paths.size()) {
+            log.debug("Number of files in directories are not equal: {}, {}", dir1Paths.size(), dir2Paths.size());
+            return false;
+        }
+
+        // For each file in dir1, check if also dir2 contains this file and if
+        // their contents are equal.
+        for (Map.Entry<Path, Path> pathEntry : dir1Paths.entrySet()) {
+            Path relativePath = pathEntry.getKey();
+            Path absolutePath = pathEntry.getValue();
+            if (!dir2Paths.containsKey(relativePath)) {
+                log.debug("File {} from dir1 ({}) not found in dir2 ({}))", relativePath, dir1, dir2);
+                return false;
+            } else {
+                if (!contentEquals(absolutePath, dir2Paths.get(relativePath))) {
+                    log.debug("Content of file {} (folder {}) differs from {} (folder {})", absolutePath, dir1, dir2Paths.get(relativePath), dir2);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
