@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 gematik GmbH
+Copyright (c) 2023-2024 gematik GmbH
 
 Licensed under the Apache License, Version 2.0 (the License);
 you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -59,7 +58,7 @@ public class SnapshotGenerator {
     private static final FhirContext fhirContext = FhirContext.forR4();
     private final DependencyGenerator dependencyGenerator = new DependencyGenerator();
     private final Map<String, IBaseResource> currentPatches = new HashMap<>();
-    private FixedSnapshotGeneratingValidationSupport snapshotGeneratingValidationSupport;
+    private IValidationSupport snapshotGeneratingValidationSupport;
     private ValidationSupportChain chain;
     private String currentPackageName = "";
     private static final String PACKAGE_FOLDER_PREFIX = "package/";
@@ -78,14 +77,16 @@ public class SnapshotGenerator {
         }
         File packageFolder = new File(packageFolderPath);
         File[] tgzFiles = packageFolder.listFiles((dir, name) -> name.endsWith(".tgz"));
-        if(tgzFiles != null) {
-            for (File fhirPackageFile : tgzFiles) {
-                log.info("Starting snapshot generation for {}", fhirPackageFile.getName());
-                List<String> dependencies = dependencyGenerator.generateListOfDependenciesFor(fhirPackageFile.getName(), packageFolderPath);
-                generateSnapshotsAndCompressAsTgz(packageFolderPath, outputFolder, fhirPackageFile.getName(), dependencies, workingDirectory);
-            }
-        } else {
-            log.error("No fhir packages found at: {}", packageFolderPath);
+
+        if(tgzFiles == null || tgzFiles.length == 0) {
+            log.warn("No fhir packages found at: {}", packageFolderPath);
+            return;
+        }
+
+        for (File fhirPackageFile : tgzFiles) {
+            log.info("Starting snapshot generation for {}", fhirPackageFile.getName());
+            List<String> dependencies = dependencyGenerator.generateListOfDependenciesFor(fhirPackageFile.getName(), packageFolderPath);
+            generateSnapshotsAndCompressAsTgz(packageFolderPath, outputFolder, fhirPackageFile.getName(), dependencies, workingDirectory);
         }
     }
 
@@ -218,10 +219,7 @@ public class SnapshotGenerator {
     }
 
     private static void writeResource(IBaseResource resource, File newFile) throws IOException {
-        try (FileWriterWithEncoding fileWriterWithEncoding = new FileWriterWithEncoding(newFile, StandardCharsets.UTF_8)) {
-            FileUtils.write(newFile, "", StandardCharsets.UTF_8);
-            fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToWriter(resource, fileWriterWithEncoding);
-        }
+        FileUtils.write(newFile, fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(resource), StandardCharsets.UTF_8);
     }
 
     private IBaseResource generateSnapshot(IBaseResource resource)  {

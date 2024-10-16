@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 gematik GmbH
+Copyright (c) 2023-2024 gematik GmbH
 
 Licensed under the Apache License, Version 2.0 (the License);
 you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.apache.commons.lang3.Validate;
 import org.hl7.fhir.common.hapi.validation.support.SnapshotGeneratingValidationSupport;
 import org.hl7.fhir.common.hapi.validation.validator.ProfileKnowledgeWorkerR5;
 import org.hl7.fhir.common.hapi.validation.validator.VersionSpecificWorkerContextWrapper;
-import org.hl7.fhir.exceptions.DefinitionException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r5.conformance.profile.ProfileKnowledgeProvider;
 import org.hl7.fhir.r5.conformance.profile.ProfileUtilities;
@@ -34,14 +33,15 @@ import org.hl7.fhir.utilities.validation.ValidationMessage;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Modified from <a href="https://github.com/DAV-ABDA/eRezept-Referenzvalidator/blob/478e8a2e3f0e24f54a331d561f518eeb2817ed58/core/src/main/java/de/abda/fhir/validator/core/support/VersionIgnoringSnapshotGeneratingValidationSupport.java">https://github.com/DAV-ABDA/eRezept-Referenzvalidator/blob/478e8a2e3f0e24f54a331d561f518eeb2817ed58/core/src/main/java/de/abda/fhir/validator/core/support/VersionIgnoringSnapshotGeneratingValidationSupport.java</a>
  * Copyright 2022 Deutscher Apothekerverband (DAV), Apache License, Version 2.0
- * Due to the issue in the base class an overwrite of the generating routine is needed, see <a href="https://github.com/hapifhir/hapi-fhir/issues/3942">https://github.com/hapifhir/hapi-fhir/issues/3942</a>
+ * Originally, the custom snapshot generating class was created due to <a href="https://github.com/hapifhir/hapi-fhir/issues/3942">https://github.com/hapifhir/hapi-fhir/issues/3942</a>
+ * However, the bug is not reproducible with the current version of HAPI FHIR.
+ * Nevertheless, the implementation below logs the validation messages generated during snapshot generation, which is not available in HAPI FHIR yet.
  */
 @Slf4j
 public class FixedSnapshotGeneratingValidationSupport extends SnapshotGeneratingValidationSupport {
@@ -86,7 +86,8 @@ public class FixedSnapshotGeneratingValidationSupport extends SnapshotGenerating
         theValidationSupportContext.getCurrentlyGeneratingSnapshots().add(inputUrl);
 
         try {
-            // This is the fix. The try-finally block is moved down to avoid a profile with snapshot being generated be removed from list of currently generated snapshots
+            // This is the fix for <a href="https://github.com/hapifhir/hapi-fhir/issues/3942">https://github.com/hapifhir/hapi-fhir/issues/3942</a>.
+            // The try-finally block is moved down to avoid a profile with snapshot being generated be removed from list of currently generated snapshots
             String baseDefinition = inputCanonical.getBaseDefinition();
             if (isBlank(baseDefinition)) {
                 throw new PreconditionFailedException("StructureDefinition[id=" + inputCanonical.getIdElement().getId() + ", url=" + inputCanonical.getUrl() + "] has no base");
@@ -114,10 +115,6 @@ public class FixedSnapshotGeneratingValidationSupport extends SnapshotGenerating
 
             // Process snapshotGeneration messages (not in HAPI yet!!!)
             logValidationMessages(messages, inputUrl);
-            var errors = messages.stream().filter(m -> m.getLevel().isError()).collect(Collectors.toList());
-            if(!errors.isEmpty()) {
-                throw new DefinitionException("Could not generate snapshot for " + inputUrl);
-            }
 
             org.hl7.fhir.r4.model.StructureDefinition generatedR4 = (org.hl7.fhir.r4.model.StructureDefinition) myVersionCanonicalizer.structureDefinitionFromCanonical(inputCanonical);
             ((org.hl7.fhir.r4.model.StructureDefinition) theInput).getSnapshot().getElement().clear();
