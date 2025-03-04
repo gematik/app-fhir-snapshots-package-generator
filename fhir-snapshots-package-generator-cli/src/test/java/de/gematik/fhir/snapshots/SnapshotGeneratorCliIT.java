@@ -17,20 +17,14 @@ package de.gematik.fhir.snapshots;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SnapshotGeneratorCliIT {
-
-    @Test
-    @SneakyThrows
-    void testSnapshotMainMandatoryArgumentsMissing() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> SnapshotGeneratorCli.main(new String[]{}));
-    }
 
     @Test
     @SneakyThrows
@@ -43,5 +37,36 @@ class SnapshotGeneratorCliIT {
 
         File generatedSnapshotPackage = new File(outputSnapshotPackagesDir + "minimal.example-1.0.0.tgz");
         assertTrue(generatedSnapshotPackage.exists());
+
+        File otherSnapshotPackage = new File(outputSnapshotPackagesDir + "excluded.package-1.0.0.tgz");
+        assertTrue(otherSnapshotPackage.exists());
+    }
+
+    @Test
+    @SneakyThrows
+    void testSnapshotMainWithOptionalArguments() {
+        String srcPackagesDir = "src/test/resources/src-package/";
+        String outputSnapshotPackagesDir = "target/generated-snapshots/";
+        String decompressDir = "target/temp-decompress/";
+        String packageNames = "minimal.example-1.0.0.tgz";
+
+        FileUtils.deleteDirectory(new File(outputSnapshotPackagesDir));
+        FileUtils.deleteDirectory(new File(decompressDir));
+
+        SnapshotGeneratorCli.main(new String[] {
+                srcPackagesDir,
+                outputSnapshotPackagesDir,
+                "--packages=" + packageNames,
+                "--tempDir=" + decompressDir
+        });
+
+        File generatedSnapshotPackage = new File(outputSnapshotPackagesDir + "minimal.example-1.0.0.tgz");
+        assertTrue(generatedSnapshotPackage.exists(), "The snapshot package should be generated");
+
+        File excludedPackage = new File(outputSnapshotPackagesDir + "excluded.package-1.0.0.tgz");
+        assertFalse(excludedPackage.exists(), "The excluded package should NOT be generated");
+
+        File decompressDirFile = new File(decompressDir);
+        assertTrue(decompressDirFile.exists() && decompressDirFile.isDirectory(), "The decompress directory should exist");
     }
 }

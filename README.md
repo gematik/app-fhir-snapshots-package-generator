@@ -91,9 +91,18 @@ The FHIR Snapshot Package Generator requires a valid path to a folder with sourc
 
     java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder
 
-The third argument, which is optional, can set a working directory.
+There are also two optional arguments: `--packages` and `--tempDir`.
+With `--packages` you can set a specific list of FHIR packages for which you want to generate the snapshots. If set, the FHIR Snapshot Package Generator will only generate snapshots for FHIR packages from the folder with source FHIR packages that are also specified in this list. Package names must be separated with commas.
+    
+    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --packages=package1-1.0.0.tgz,package2-1.0.0.tgz,package3-1.0.0.tgz
 
-    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder path/to/working-directory
+With `--tempDir` you can also set a working directory.
+
+    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --tempDir=path/to/working-directory
+
+Or both:
+
+    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --packages=package1-1.0.0.tgz,package2-1.0.0.tgz,package3-1.0.0.tgz --tempDir=path/to/working-directory
 
 ### Java library
 
@@ -109,9 +118,9 @@ The following example shows how to use the FHIR Snapshot Package Generator as a 
 ``` Java
         String srcPackageFolderPath = "path/to/src-packages";
         String outputFolderPath = "path/to/output-folder";
-        String workingDirectory = "path/to/working-directory";
+        String tempDir = "path/to/tempDir";
         SnapshotGenerator snapshotGenerator = new SnapshotGenerator();
-        snapshotGenerator.generateSnapshots(packageFolderPath, packageFolderPath.replace(SRC_PACKAGE, "package"), workingDirectory);
+        snapshotGenerator.generateSnapshots(packageFolderPath, packageFolderPath.replace(SRC_PACKAGE, "package"), tempDir);
 ``` 
 
 ## Contributing
