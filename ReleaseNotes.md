@@ -2,6 +2,11 @@
 
 # Release Notes FHIR Snapshots Package Generator
 
+## Release 0.6.0 (2025-03)
+
+### added
+- New optional parameters `--packages` and `--workingDir` (cf. [README.md](./README.md)).
+
 ## Release 0.5.0 (2024-10)
 
 ### added

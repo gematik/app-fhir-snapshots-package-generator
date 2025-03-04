@@ -43,9 +43,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The SnapshotGenerator class is responsible for generating FHIR snapshots
@@ -63,38 +67,64 @@ public class SnapshotGenerator {
     private String currentPackageName = "";
     private static final String PACKAGE_FOLDER_PREFIX = "package/";
 
+
     /**
-     * Generates snapshots for FHIR packages and their dependencies.
+     * Generates snapshots for all FHIR packages and their dependencies.
      *
      * @param packageFolderPath The path to the folder containing source FHIR packages.
      * @param outputFolder      The output folder where FHIR packages with the generated snapshots will be stored.
-     * @param workingDirectory  The temporary directory for decompressing the FHIR packages.
+     * @param tempDir  The temporary directory for decompressing the FHIR packages.
      * @throws IOException If an I/O error occurs during the snapshot generation process.
      */
-    public void generateSnapshots(String packageFolderPath, String outputFolder, String workingDirectory) throws IOException {
-        if(workingDirectory.isEmpty()) {
-            workingDirectory = System.getProperty("java.io.tmpdir") + File.separator;
-        }
+    public void generateSnapshots(String packageFolderPath, String outputFolder, String tempDir) throws IOException {
+        generateSnapshots(packageFolderPath, outputFolder, new ArrayList<>(), tempDir);
+    }
+
+    /**
+     * Generates snapshots for specified FHIR packages and their dependencies.
+     *
+     * @param packageFolderPath             The path to the folder containing source FHIR packages.
+     * @param outputFolder                  The output folder where FHIR packages with the generated snapshots will be stored.
+     * @param packagesForSnapshotGeneration The list of package names (optional). If empty, all packages are processed.
+     * @param tempDir              The temporary directory for decompressing the FHIR packages.
+     * @throws IOException If an I/O error occurs during the snapshot generation process.
+     */
+    public void generateSnapshots(String packageFolderPath, String outputFolder, Collection<String> packagesForSnapshotGeneration, String tempDir) throws IOException {
         File packageFolder = new File(packageFolderPath);
         File[] tgzFiles = packageFolder.listFiles((dir, name) -> name.endsWith(".tgz"));
 
-        if(tgzFiles == null || tgzFiles.length == 0) {
-            log.warn("No fhir packages found at: {}", packageFolderPath);
+        if (tgzFiles == null || tgzFiles.length == 0) {
+            log.warn("No FHIR packages found at: {}", packageFolderPath);
             return;
         }
 
-        for (File fhirPackageFile : tgzFiles) {
-            log.info("Starting snapshot generation for {}", fhirPackageFile.getName());
-            List<String> dependencies = dependencyGenerator.generateListOfDependenciesFor(fhirPackageFile.getName(), packageFolderPath);
-            generateSnapshotsAndCompressAsTgz(packageFolderPath, outputFolder, fhirPackageFile.getName(), dependencies, workingDirectory);
+        List<String> allPackageNames = Arrays.stream(tgzFiles)
+                .map(File::getName)
+                .collect(Collectors.toList());
+
+        List<String> packagesToGenerate = new ArrayList<>(packagesForSnapshotGeneration);
+        if (packagesToGenerate.isEmpty()) {
+            packagesToGenerate.addAll(allPackageNames);
+        }
+
+        for (String packageName : allPackageNames) {
+
+            if (!packagesToGenerate.contains(packageName)) {
+                log.info("Skipping package: {} (not specified for snapshot generation)", packageName);
+                continue;
+            }
+
+            log.info("Starting snapshot generation for {}", packageName);
+            List<String> dependencies = dependencyGenerator.generateListOfDependenciesFor(packageName, packageFolderPath);
+            generateSnapshotsAndCompressAsTgz(packageFolderPath, outputFolder, packageName, dependencies, tempDir);
         }
     }
 
-    private void generateSnapshotsAndCompressAsTgz(String sourceDir, String outputDir, String filename, List<String> dependencies, String decompressDir) throws IOException {
+    private void generateSnapshotsAndCompressAsTgz(String sourceDir, String outputDir, String filename, List<String> dependencies, String tempDir) throws IOException {
         setupSupportChain(dependencies, sourceDir);
-        decompressPackage(sourceDir, filename, decompressDir);
-        readStructureDefinitionsFromTgz(sourceDir, filename, decompressDir);
-        compressPackage(outputDir, decompressDir);
+        decompressPackage(sourceDir, filename, tempDir);
+        readStructureDefinitionsFromTgz(sourceDir, filename, tempDir);
+        compressPackage(outputDir, tempDir);
         log.info("Finished snapshot generation for {}", filename);
     }
 
@@ -143,20 +173,20 @@ public class SnapshotGenerator {
         }
     }
 
-    private void decompressPackage(String sourceDir, String fileName, String decompressDirPath) throws IOException {
+    private void decompressPackage(String sourceDir, String fileName, String tempDirPath) throws IOException {
         currentPackageName = fileName.replaceAll(".tgz", "");
-        File decompressDir = new File(decompressDirPath + currentPackageName);
-        FileUtils.deleteDirectory(decompressDir);
-        TARGZ.decompress(sourceDir + fileName, decompressDir);
+        File tempDir = new File(tempDirPath + currentPackageName);
+        FileUtils.deleteDirectory(tempDir);
+        TARGZ.decompress(sourceDir + fileName, tempDir);
     }
 
-    private void compressPackage(String outputDir, String decompressDir) throws IOException {
-        Path source = Paths.get(decompressDir + currentPackageName);
+    private void compressPackage(String outputDir, String tempDir) throws IOException {
+        Path source = Paths.get(tempDir + currentPackageName);
         Files.createDirectories(Paths.get(outputDir));
         TARGZ.compress(source, outputDir);
     }
 
-    private void readStructureDefinitionsFromTgz(String sourceDir, String filename, String decompressDir) throws IOException {
+    private void readStructureDefinitionsFromTgz(String sourceDir, String filename, String tempDir) throws IOException {
         try (
                 FileInputStream fileInputStream = new FileInputStream(sourceDir + filename);
                 GzipCompressorInputStream gzipInputStream = new GzipCompressorInputStream(fileInputStream);
@@ -173,7 +203,7 @@ public class SnapshotGenerator {
 
                 // Only work with files on the top level of the "package" folder and only handle .json files
                 try {
-                    createSnapshotIfStructureDefinitionAndWrite(decompressDir, currentEntryName, bufferedReader);
+                    createSnapshotIfStructureDefinitionAndWrite(tempDir, currentEntryName, bufferedReader);
 
                     currentEntry = tarInputStream.getNextEntry();
                 } catch (Exception e) {
@@ -184,9 +214,9 @@ public class SnapshotGenerator {
         }
     }
 
-    private void createSnapshotIfStructureDefinitionAndWrite(String decompressDir, String currentEntryName, BufferedReader bufferedReader) throws IOException {
+    private void createSnapshotIfStructureDefinitionAndWrite(String tempDir, String currentEntryName, BufferedReader bufferedReader) throws IOException {
         if (currentEntryName.startsWith(PACKAGE_FOLDER_PREFIX) && !currentEntryName.substring(PACKAGE_FOLDER_PREFIX.length()).contains("/") && currentEntryName.endsWith(".json")) {
-            File destDir = new File(decompressDir + currentPackageName);
+            File destDir = new File(tempDir + currentPackageName);
             File newFile = ZipSlipProtect.newFile(destDir, currentEntryName);
 
             if(fileShouldBeIgnored(currentEntryName)) {

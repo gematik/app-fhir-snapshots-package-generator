@@ -25,8 +25,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +64,20 @@ class SnapshotGeneratorTests {
         snapshotGenerator.generateSnapshots(SRC_PACKAGES_DIR, OUTPUT_SNAPSHOT_PACKAGES_DIR, getDecompressDir());
         File generatedSnapshotPackage = new File(OUTPUT_SNAPSHOT_PACKAGES_DIR + "minimal.example-1.0.0.tgz");
         assertThat(comparePackages(correctSnapshotPackage, generatedSnapshotPackage)).isTrue();
+    }
+
+    @Test
+    @SneakyThrows
+    void testGenerateSnapshotsEqualWithSpecifiedPackages() {
+        File correctSnapshotPackage = new File(CORRECT_PACKAGE);
+        snapshotGenerator.generateSnapshots(SRC_PACKAGES_DIR, OUTPUT_SNAPSHOT_PACKAGES_DIR, List.of("minimal.example-1.0.0.tgz"), getDecompressDir());
+
+        File generatedSnapshotPackage = new File(OUTPUT_SNAPSHOT_PACKAGES_DIR + "minimal.example-1.0.0.tgz");
+
+        assertThat(comparePackages(correctSnapshotPackage, generatedSnapshotPackage)).isTrue();
+
+        File excludedPackage = new File(OUTPUT_SNAPSHOT_PACKAGES_DIR + "excluded.package-1.0.0.tgz");
+        assertThat(excludedPackage).doesNotExist();
     }
 
     @Test
@@ -104,5 +120,14 @@ class SnapshotGeneratorTests {
         Path correctPackageDecompressedPath = Path.of(OUTPUT_SNAPSHOT_PACKAGES_DIR + "correct");
         Path generatedPackageDecompressedPath = Path.of(OUTPUT_SNAPSHOT_PACKAGES_DIR + "generated" + "-equal");
         return DirectoryComparator.directoryContentEquals(correctPackageDecompressedPath, generatedPackageDecompressedPath);
+    }
+
+    @Test
+    @SneakyThrows
+    void testGenerateSnapshotsEmptySourceDir() {
+        Path temp = Files.createTempDirectory("empty-source-dir");
+        snapshotGenerator.generateSnapshots(temp.toString(), OUTPUT_SNAPSHOT_PACKAGES_DIR, List.of("minimal.example-1.0.0"), getDecompressDir());
+        File outputDir = new File(temp.toString());
+        assertThat(outputDir).isEmptyDirectory();
     }
 }

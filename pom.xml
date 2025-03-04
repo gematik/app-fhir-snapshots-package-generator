@@ -8,7 +8,7 @@
   <groupId>de.gematik.fhir</groupId>
   <artifactId>fhir-snapshots-package-generator</artifactId>
   <packaging>pom</packaging>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
   <name>FHIR Snapshots Package Generator</name>
   <description>The FHIR Snapshots Package Generator generates snapshots for StructureDefinitions in FHIR-packages</description>
   <url>https://github.com/gematik/app-fhir-snapshots-package-generator</url>
@@ -65,28 +65,28 @@
     <maven.compiler.release>11</maven.compiler.release>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <version.surefire>3.5.1</version.surefire>
-    <version.compiler>3.13.0</version.compiler>
-    <version.hapi-fhir-validation>7.4.3</version.hapi-fhir-validation>
-    <version.lombok>1.18.34</version.lombok>
-    <version.log4j2>2.24.1</version.log4j2>
-    <version.slf4j-api>2.0.16</version.slf4j-api>
-    <version.slf4j-log4j>2.0.16</version.slf4j-log4j>
-    <version.junit-jupiter-api>5.11.2</version.junit-jupiter-api>
-    <version.jackson>2.18.0</version.jackson>
-    <version.woodstox>7.0.0</version.woodstox>
-    <version.site>3.20.0</version.site>
+    <version.surefire>3.5.2</version.surefire>
+    <version.compiler>3.14.0</version.compiler>
+    <version.hapi-fhir-validation>7.4.5</version.hapi-fhir-validation>
+    <version.lombok>1.18.36</version.lombok>
+    <version.log4j2>2.24.3</version.log4j2>
+    <version.slf4j-api>2.0.17</version.slf4j-api>
+    <version.slf4j-log4j>2.0.17</version.slf4j-log4j>
+    <version.junit-jupiter-api>5.12.0</version.junit-jupiter-api>
+    <version.jackson>2.18.3</version.jackson>
+    <version.woodstox>7.1.0</version.woodstox>
+    <version.site>3.21.0</version.site>
     <version.maven-release>3.1.1</version.maven-release>
     <version.jar>3.4.2</version.jar>
     <version.build.helper>3.6.0</version.build.helper>
     <version.maven-source-plugin>3.3.1</version.maven-source-plugin>
-    <version.maven-javadoc-plugin>3.10.1</version.maven-javadoc-plugin>
+    <version.maven-javadoc-plugin>3.11.2</version.maven-javadoc-plugin>
     <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
     <version.buildnumber>3.2.1</version.buildnumber>
     <version.picocli>4.7.6</version.picocli>
-    <version.mockito>5.14.2</version.mockito>
+    <version.mockito>5.16.0</version.mockito>
     <version.jacoco>0.8.12</version.jacoco>
-    <version.maven-failsafe-plugin>3.5.1</version.maven-failsafe-plugin>
+    <version.maven-failsafe-plugin>3.5.2</version.maven-failsafe-plugin>
     <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
 
     <sonar.coverage.jacoco.xmlReportPaths>**/site/jacoco-it/jacoco.xml,**/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -95,8 +95,8 @@
     </sonar.junit.reportPaths>
     <version.nexus-staging-maven-plugin>1.6.13</version.nexus-staging-maven-plugin>
     <version.maven-gpg-plugin>3.0.1</version.maven-gpg-plugin>
-    <assertj-core.version>3.26.3</assertj-core.version>
-    <spotless-maven-plugin.version>2.44.0.BETA2</spotless-maven-plugin.version>
+    <assertj-core.version>3.27.3</assertj-core.version>
+    <spotless-maven-plugin.version>2.44.3</spotless-maven-plugin.version>
   </properties>
 
 
