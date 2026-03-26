@@ -1,63 +1,69 @@
-/*
-Copyright (c) 2023-2024 gematik GmbH
-
-Licensed under the Apache License, Version 2.0 (the License);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an 'AS IS' BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package de.gematik.fhir.snapshots.helper;
 
-
-import lombok.NonNull;
+/*-
+ * #%L
+ * fhir-snapshots-package-generator-lib
+ * %%
+ * Copyright (C) 2024 - 2026 gematik GmbH
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes
+ * by gematik, find details in the "Readme" file.
+ * #L%
+ */
 
 import java.util.Comparator;
 import java.util.Objects;
+import lombok.NonNull;
 
-public class PackageVersion implements Comparable<PackageVersion>{
-    private final String version;
+public class PackageVersion implements Comparable<PackageVersion> {
+  private final String version;
 
-    public PackageVersion(String version) {
-        this.version = version;
+  public PackageVersion(String version) {
+    this.version = version;
+  }
+
+  @Override
+  public int compareTo(@NonNull PackageVersion other) {
+    return Comparator.comparing((PackageVersion v) -> v.version).compare(this, other);
+  }
+
+  @Override
+  public String toString() {
+    return version;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-
-    @Override
-    public int compareTo(@NonNull PackageVersion other) {
-        return Comparator.comparing((PackageVersion v) -> v.version)
-                .compare(this, other);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
+    PackageVersion that = (PackageVersion) obj;
+    return Objects.equals(version, that.version);
+  }
 
-    @Override
-    public String toString() {
-        return version;
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(version);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        PackageVersion that = (PackageVersion) obj;
-        return Objects.equals(version, that.version);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(version);
-    }
-
-
-    public boolean matchesWildcard(String wildcardVersion) {
-        return version.startsWith(wildcardVersion.substring(0, wildcardVersion.length() - 1));
-    }
+  public boolean matchesWildcard(String wildcardVersion) {
+    return version.startsWith(wildcardVersion.substring(0, wildcardVersion.length() - 1));
+  }
 }
