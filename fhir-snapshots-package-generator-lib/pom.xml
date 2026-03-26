@@ -6,10 +6,14 @@
     <parent>
         <groupId>de.gematik.fhir</groupId>
         <artifactId>fhir-snapshots-package-generator</artifactId>
-        <version>0.7.0</version>
+        <version>0.7.1</version>
     </parent>
 
     <artifactId>fhir-snapshots-package-generator-lib</artifactId>
+    <name>${project.artifactId}</name>
+    <packaging>jar</packaging>
+    <description>Library for generating Snapshots from given Packages</description>
+    <url>https://github.com/gematik/app-fhir-snapshots-package-generator</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
