@@ -4,12 +4,14 @@
   <parent>
     <groupId>de.gematik.fhir</groupId>
     <artifactId>fhir-snapshots-package-generator</artifactId>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
   </parent>
 
   <artifactId>fhir-snapshots-package-generator-cli</artifactId>
-
-  <name>fhir-snapshots-package-generator-cli</name>
+  <name>${project.artifactId}</name>
+  <packaging>jar</packaging>
+  <description>CLI for generating Snapshots from given Packages</description>
+  <url>https://github.com/gematik/app-fhir-snapshots-package-generator</url>
 
   <build>
     <plugins>

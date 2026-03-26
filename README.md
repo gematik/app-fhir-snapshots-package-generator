@@ -37,8 +37,7 @@ StructureDefinitions. Other Resources get copied without change to the final FHI
 
 > **Warning**
 > Package resources in formats other than JSON (i.e. do not end with `.json`) are ignored and are not copied to the
-> final FHIR-Package. The current version of The FHIR Snapshots Package Generator supports FHIR R4-Version of resources
-> only.
+> final FHIR-Package. 
 
 ### Release Notes
 
@@ -63,11 +62,11 @@ cf. [Maven Central](https://search.maven.org/artifact/de.gematik.fhir.snapshots/
 Example for declaration of a Maven dependency:
 
 ``` XML
-    <dependency>
-        <groupId>de.gematik.fhir</groupId>
-        <artifactId>fhir-snapshots-package-generator-lib</artifactId>
-        <version>${version.snapshot-generator}</version>
-    </dependency>
+<dependency>
+   <groupId>de.gematik.fhir</groupId>
+   <artifactId>fhir-snapshots-package-generator-lib</artifactId>
+   <version>${version.snapshot-generator}</version>
+</dependency>
 ```   
 
 with `${version.snapshot-generator}` being a placeholder for the version of the FHIR Snapshot Package Generator.
@@ -123,19 +122,19 @@ FHIR Snapshot Package Generator will only generate snapshots for FHIR packages f
 that are also specified in this list. Package names must be separated with commas.
 
 ```shell
-    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --packages=package1-1.0.0.tgz,package2-1.0.0.tgz,package3-1.0.0.tgz
+java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --packages=package1-1.0.0.tgz,package2-1.0.0.tgz,package3-1.0.0.tgz
 ```
 
 With `--tempDir` you can also set a working directory.
 
 ```shell
-    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --tempDir=path/to/working-directory
+java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --tempDir=path/to/working-directory
 ```
 
 Or both:
 
 ```shell
-    java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --packages=package1-1.0.0.tgz,package2-1.0.0.tgz,package3-1.0.0.tgz --tempDir=path/to/working-directory
+java -jar fhir-snapshots-package-generator-cli-X.Y.Z.jar path/to/src-packages path/to/output-folder --packages=package1-1.0.0.tgz,package2-1.0.0.tgz,package3-1.0.0.tgz --tempDir=path/to/working-directory
 ```
 
 ### Java library
@@ -143,22 +142,18 @@ Or both:
 The following example shows how to use the FHIR Snapshot Package Generator as a Java library:
 
 ```java
-        String srcPackageFolderPath = "path/to/src-packages";
+String srcPackageFolderPath = "path/to/src-packages";
 String outputFolderPath = "path/to/output-folder";
 SnapshotGenerator snapshotGenerator = new SnapshotGenerator();
-        snapshotGenerator.
-
-generateSnapshots(packageFolderPath, packageFolderPath.replace(SRC_PACKAGE, "package"), "");
+snapshotGenerator.generateSnapshots(packageFolderPath, packageFolderPath.replace(SRC_PACKAGE, "package"), "");
 ``` 
 
 ```java
-        String srcPackageFolderPath = "path/to/src-packages";
+String srcPackageFolderPath = "path/to/src-packages";
 String outputFolderPath = "path/to/output-folder";
 String tempDir = "path/to/tempDir";
 SnapshotGenerator snapshotGenerator = new SnapshotGenerator();
-        snapshotGenerator.
-
-generateSnapshots(packageFolderPath, packageFolderPath.replace(SRC_PACKAGE, "package"),tempDir);
+snapshotGenerator.generateSnapshots(packageFolderPath, packageFolderPath.replace(SRC_PACKAGE, "package"),tempDir);
 ```
 
 ### Customizing the execution
