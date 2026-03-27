@@ -6,6 +6,12 @@
 
 ### changed
 
+- Fix License Text in Readme
+
+## Release 0.7.1 (2026-03)
+
+### changed
+
 - Fix for publishing to Maven Central with the new plugin
 
 ## Release 0.7.0 (2026-03)
