@@ -2,7 +2,7 @@
 
 # Release Notes FHIR Snapshots Package Generator
 
-## Release 0.7.1 (2026-03)
+## Release 0.7.2 (2026-03)
 
 ### changed
 
